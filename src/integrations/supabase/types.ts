@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      content: {
+        Row: {
+          admin_notes: string | null
+          author: string | null
+          contributor_id: string
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          language: string | null
+          published_at: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["content_type"]
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          author?: string | null
+          contributor_id: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["content_type"]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          author?: string | null
+          contributor_id?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          title?: string
+          type?: Database["public"]["Enums"]["content_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -81,6 +135,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "contributor" | "user"
+      content_status: "pending" | "approved" | "rejected"
+      content_type: "book" | "audio" | "video"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +265,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "contributor", "user"],
+      content_status: ["pending", "approved", "rejected"],
+      content_type: ["book", "audio", "video"],
     },
   },
 } as const
