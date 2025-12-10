@@ -9,10 +9,84 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Upload, FileText, Music, Video, Loader2 } from 'lucide-react';
+import { z } from 'zod';
 
 type ContentType = 'book' | 'audio' | 'video';
 
 const LANGUAGES = ['English', 'Arabic', 'Urdu', 'Turkish', 'Malay', 'Indonesian', 'French', 'Spanish'];
+
+// Validation schema for content upload
+const contentSchema = z.object({
+  title: z.string()
+    .trim()
+    .min(1, 'Title is required')
+    .max(200, 'Title must be less than 200 characters'),
+  description: z.string()
+    .trim()
+    .max(2000, 'Description must be less than 2000 characters')
+    .optional()
+    .transform(val => val || ''),
+  author: z.string()
+    .trim()
+    .max(200, 'Author name must be less than 200 characters')
+    .optional()
+    .transform(val => val || ''),
+  language: z.enum(['English', 'Arabic', 'Urdu', 'Turkish', 'Malay', 'Indonesian', 'French', 'Spanish']),
+  tags: z.string()
+    .transform(val => 
+      val.split(',')
+        .map(t => t.trim().slice(0, 50)) // Limit each tag to 50 chars
+        .filter(Boolean)
+        .slice(0, 20) // Max 20 tags
+    ),
+  contentType: z.enum(['book', 'audio', 'video']),
+});
+
+// File type validation
+const ALLOWED_FILE_TYPES: Record<ContentType, string[]> = {
+  book: ['application/pdf', 'application/epub+zip', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  audio: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a'],
+  video: ['video/mp4', 'video/webm', 'video/quicktime'],
+};
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+
+function validateFile(file: File, contentType: ContentType): string | null {
+  if (file.size > MAX_FILE_SIZE) {
+    return 'File size must be less than 500MB';
+  }
+  
+  const allowedTypes = ALLOWED_FILE_TYPES[contentType];
+  if (!allowedTypes.includes(file.type)) {
+    return `Invalid file type. Allowed types for ${contentType}: ${getAcceptedFileTypesStatic(contentType)}`;
+  }
+  
+  return null;
+}
+
+function validateImage(file: File): string | null {
+  if (file.size > MAX_IMAGE_SIZE) {
+    return 'Cover image must be less than 10MB';
+  }
+  
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return 'Invalid image type. Allowed: JPEG, PNG, GIF, WebP';
+  }
+  
+  return null;
+}
+
+function getAcceptedFileTypesStatic(type: ContentType): string {
+  switch (type) {
+    case 'book': return '.pdf,.epub,.doc,.docx';
+    case 'audio': return '.mp3,.wav,.ogg,.m4a';
+    case 'video': return '.mp4,.webm,.mov';
+    default: return '*';
+  }
+}
 
 export function ContentUploadForm() {
   const { user } = useAuth();
@@ -26,14 +100,7 @@ export function ContentUploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
 
-  const getAcceptedFileTypes = () => {
-    switch (contentType) {
-      case 'book': return '.pdf,.epub,.doc,.docx';
-      case 'audio': return '.mp3,.wav,.ogg,.m4a';
-      case 'video': return '.mp4,.webm,.mov';
-      default: return '*';
-    }
-  };
+  const getAcceptedFileTypes = () => getAcceptedFileTypesStatic(contentType);
 
   const getContentIcon = () => {
     switch (contentType) {
@@ -56,11 +123,44 @@ export function ContentUploadForm() {
       return;
     }
 
+    // Validate form data with zod
+    const validationResult = contentSchema.safeParse({
+      title,
+      description,
+      author,
+      language,
+      tags,
+      contentType,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast.error(firstError.message);
+      return;
+    }
+
+    // Validate file type and size
+    const fileError = validateFile(file, contentType);
+    if (fileError) {
+      toast.error(fileError);
+      return;
+    }
+
+    // Validate cover image if provided
+    if (coverImage) {
+      const imageError = validateImage(coverImage);
+      if (imageError) {
+        toast.error(imageError);
+        return;
+      }
+    }
+
+    const validatedData = validationResult.data;
     setIsSubmitting(true);
 
     try {
-      // Upload main file
-      const fileExt = file.name.split('.').pop();
+      // Upload main file with sanitized path
+      const fileExt = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin';
       const filePath = `${user.id}/${contentType}/${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
@@ -76,7 +176,7 @@ export function ContentUploadForm() {
       // Upload cover image if provided
       let coverImageUrl = null;
       if (coverImage) {
-        const coverExt = coverImage.name.split('.').pop();
+        const coverExt = coverImage.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
         const coverPath = `${user.id}/covers/${Date.now()}.${coverExt}`;
         
         const { error: coverError } = await supabase.storage
@@ -92,17 +192,17 @@ export function ContentUploadForm() {
         coverImageUrl = publicUrl;
       }
 
-      // Insert content record
+      // Insert content record with validated data
       const { error: insertError } = await supabase
         .from('content')
         .insert({
           contributor_id: user.id,
-          type: contentType,
-          title,
-          description,
-          author,
-          language,
-          tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+          type: validatedData.contentType,
+          title: validatedData.title,
+          description: validatedData.description || null,
+          author: validatedData.author || null,
+          language: validatedData.language,
+          tags: validatedData.tags,
           file_url: fileUrl,
           cover_image_url: coverImageUrl,
         });
@@ -164,36 +264,39 @@ export function ContentUploadForm() {
 
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">Title * <span className="text-xs text-muted-foreground">(max 200 chars)</span></Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter content title"
+              maxLength={200}
               required
             />
           </div>
 
           {/* Author */}
           <div className="space-y-2">
-            <Label htmlFor="author">Author / Speaker</Label>
+            <Label htmlFor="author">Author / Speaker <span className="text-xs text-muted-foreground">(max 200 chars)</span></Label>
             <Input
               id="author"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
               placeholder="Enter author or speaker name"
+              maxLength={200}
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description <span className="text-xs text-muted-foreground">(max 2000 chars)</span></Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the content..."
               rows={4}
+              maxLength={2000}
             />
           </div>
 
@@ -214,7 +317,7 @@ export function ContentUploadForm() {
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Label htmlFor="tags">Tags (comma-separated) <span className="text-xs text-muted-foreground">(max 20 tags)</span></Label>
             <Input
               id="tags"
               value={tags}
@@ -225,7 +328,7 @@ export function ContentUploadForm() {
 
           {/* File Upload */}
           <div className="space-y-2">
-            <Label htmlFor="file">Content File *</Label>
+            <Label htmlFor="file">Content File * <span className="text-xs text-muted-foreground">(max 500MB)</span></Label>
             <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
               <input
                 id="file"
@@ -250,7 +353,7 @@ export function ContentUploadForm() {
 
           {/* Cover Image */}
           <div className="space-y-2">
-            <Label htmlFor="cover">Cover Image (optional)</Label>
+            <Label htmlFor="cover">Cover Image (optional) <span className="text-xs text-muted-foreground">(max 10MB)</span></Label>
             <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
               <input
                 id="cover"
