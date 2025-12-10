@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Book, Headphones, Video, Menu, X, LogOut, User } from "lucide-react";
+import { Book, Headphones, Video, Menu, X, LogOut, User, Upload } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -89,6 +89,14 @@ const Navbar = () => {
                   </p>
                 </div>
                 <DropdownMenuSeparator />
+                {(role === 'contributor' || role === 'admin') && (
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/contributor">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Contributor Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
