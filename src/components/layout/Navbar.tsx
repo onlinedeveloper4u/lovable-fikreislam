@@ -1,16 +1,45 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Book, Headphones, Video, Menu, X } from "lucide-react";
+import { Book, Headphones, Video, Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, role, signOut, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   const navLinks = [
     { name: "Books", href: "/books", icon: Book },
     { name: "Audio", href: "/audio", icon: Headphones },
     { name: "Video", href: "/video", icon: Video },
   ];
+
+  const getRoleBadge = () => {
+    if (!role) return null;
+    const colors = {
+      admin: "bg-destructive/10 text-destructive",
+      contributor: "bg-accent/20 text-accent-foreground",
+      user: "bg-muted text-muted-foreground",
+    };
+    return (
+      <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${colors[role]}`}>
+        {role}
+      </span>
+    );
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -41,12 +70,41 @@ const Navbar = () => {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" asChild>
-            <Link to="/login">Sign In</Link>
-          </Button>
-          <Button variant="hero" asChild>
-            <Link to="/register">Get Started</Link>
-          </Button>
+          {loading ? (
+            <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  {getRoleBadge()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {user.email}
+                  </p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Sign In</Link>
+              </Button>
+              <Button variant="hero" asChild>
+                <Link to="/register">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -74,12 +132,27 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="outline" asChild>
-                <Link to="/login">Sign In</Link>
-              </Button>
-              <Button variant="hero" asChild>
-                <Link to="/register">Get Started</Link>
-              </Button>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 px-2 py-1">
+                    <span className="text-sm text-muted-foreground truncate">{user.email}</span>
+                    {getRoleBadge()}
+                  </div>
+                  <Button variant="outline" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                  <Button variant="hero" asChild>
+                    <Link to="/register">Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
