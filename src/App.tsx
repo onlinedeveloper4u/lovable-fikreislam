@@ -13,6 +13,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import ContributorDashboard from "./pages/ContributorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Library from "./pages/Library";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/contributor" element={<ContributorDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/library" element={<Library />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
