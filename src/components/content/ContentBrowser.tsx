@@ -1,13 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useFavorites } from '@/hooks/useFavorites';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AddToPlaylistDialog } from './AddToPlaylistDialog';
 import { 
   Search, Download, Play, FileText, Music, Video, 
-  Loader2, Filter, X, User, Calendar 
+  Loader2, Filter, X, User, Calendar, Heart, ListPlus
 } from 'lucide-react';
 
 type ContentType = 'book' | 'audio' | 'video';
@@ -40,11 +43,15 @@ const typeConfig: Record<ContentType, { icon: React.ElementType; actionLabel: st
 };
 
 export function ContentBrowser({ contentType, title, description }: ContentBrowserProps) {
+  const { user } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [content, setContent] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
+  const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
   const config = typeConfig[contentType];
   const TypeIcon = config.icon;
@@ -101,6 +108,14 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
     if (item.file_url) {
       window.open(item.file_url, '_blank');
     }
+  };
+
+  const handleAddToPlaylist = (contentId: string) => {
+    if (!user) {
+      return;
+    }
+    setSelectedContentId(contentId);
+    setPlaylistDialogOpen(true);
   };
 
   const clearFilters = () => {
@@ -217,6 +232,33 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
                     <TypeIcon className="h-16 w-16 text-muted-foreground/30" />
                   </div>
                 )}
+                {/* Action buttons */}
+                {user && (
+                  <div className="absolute top-2 right-2 flex flex-col gap-1">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8 bg-background/80 backdrop-blur"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(item.id);
+                      }}
+                    >
+                      <Heart className={`h-4 w-4 ${isFavorite(item.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8 bg-background/80 backdrop-blur"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToPlaylist(item.id);
+                      }}
+                    >
+                      <ListPlus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
                 {/* Overlay with action button */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Button onClick={() => handleAction(item)} size="lg">
@@ -270,6 +312,15 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Add to Playlist Dialog */}
+      {selectedContentId && (
+        <AddToPlaylistDialog
+          contentId={selectedContentId}
+          open={playlistDialogOpen}
+          onOpenChange={setPlaylistDialogOpen}
+        />
       )}
     </div>
   );
