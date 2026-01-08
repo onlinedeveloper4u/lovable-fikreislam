@@ -5,8 +5,9 @@ import Layout from '@/components/layout/Layout';
 import { PendingContentList } from '@/components/admin/PendingContentList';
 import { AllContentList } from '@/components/admin/AllContentList';
 import { UserManagement } from '@/components/admin/UserManagement';
+import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Clock, FileText, Users } from 'lucide-react';
+import { Shield, Clock, FileText, Users, BarChart3 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { user, role, loading } = useAuth();
@@ -47,8 +48,12 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-3">
+        <Tabs defaultValue="analytics" className="space-y-6">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
             <TabsTrigger value="pending" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               <span className="hidden sm:inline">Pending</span>
@@ -62,6 +67,10 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics">
+            <AdminAnalytics />
+          </TabsContent>
 
           <TabsContent value="pending">
             <PendingContentList />

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,7 +13,6 @@ import {
   Search, Download, Play, FileText, Music, Video, 
   Loader2, Filter, X, User, Calendar, Heart, ListPlus
 } from 'lucide-react';
-
 type ContentType = 'book' | 'audio' | 'video';
 
 interface Content {
@@ -45,6 +45,7 @@ const typeConfig: Record<ContentType, { icon: React.ElementType; actionLabel: st
 export function ContentBrowser({ contentType, title, description }: ContentBrowserProps) {
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { trackDownload, trackPlay } = useAnalytics();
   const [content, setContent] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,6 +107,12 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
 
   const handleAction = (item: Content) => {
     if (item.file_url) {
+      // Track the action
+      if (item.type === 'book') {
+        trackDownload(item.id);
+      } else {
+        trackPlay(item.id);
+      }
       window.open(item.file_url, '_blank');
     }
   };
