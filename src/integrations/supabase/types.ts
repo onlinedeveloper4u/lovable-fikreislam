@@ -68,6 +68,38 @@ export type Database = {
         }
         Relationships: []
       }
+      content_analytics: {
+        Row: {
+          action_type: string
+          content_id: string
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          content_id: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          content_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_analytics_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           content_id: string
