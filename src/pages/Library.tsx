@@ -73,11 +73,11 @@ export default function Library() {
   const fetchFavoriteContent = async () => {
     setLoadingContent(true);
     try {
+      // Use content_public view to avoid exposing sensitive fields
       const { data, error } = await supabase
-        .from('content')
-        .select('*')
-        .in('id', Array.from(favorites))
-        .eq('status', 'approved');
+        .from('content_public')
+        .select('id, title, description, author, type, language, file_url, cover_image_url')
+        .in('id', Array.from(favorites));
 
       if (error) throw error;
       setFavoriteContent((data as Content[]) || []);
@@ -100,11 +100,11 @@ export default function Library() {
       if (itemsError) throw itemsError;
 
       if (items && items.length > 0) {
+        // Use content_public view to avoid exposing sensitive fields
         const { data, error } = await supabase
-          .from('content')
-          .select('*')
-          .in('id', items.map(i => i.content_id))
-          .eq('status', 'approved');
+          .from('content_public')
+          .select('id, title, description, author, type, language, file_url, cover_image_url')
+          .in('id', items.map(i => i.content_id));
 
         if (error) throw error;
         setPlaylistContent((data as Content[]) || []);

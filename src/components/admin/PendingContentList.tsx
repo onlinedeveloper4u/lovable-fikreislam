@@ -116,8 +116,16 @@ export function PendingContentList() {
     setRejectDialogOpen(true);
   };
 
+  const MAX_ADMIN_NOTES_LENGTH = 5000;
+
   const handleReject = async () => {
     if (!selectedContent) return;
+
+    // Validate admin notes length
+    if (adminNotes.length > MAX_ADMIN_NOTES_LENGTH) {
+      toast.error(`Admin notes must be less than ${MAX_ADMIN_NOTES_LENGTH} characters`);
+      return;
+    }
 
     setActionLoading(selectedContent.id);
     try {
@@ -308,7 +316,11 @@ export function PendingContentList() {
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={4}
+                maxLength={5000}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {adminNotes.length}/5000 characters
+              </p>
             </div>
           </div>
           <DialogFooter>
