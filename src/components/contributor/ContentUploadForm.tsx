@@ -191,12 +191,12 @@ export function ContentUploadForm() {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl: fileUrl } } = supabase.storage
-        .from('content-files')
-        .getPublicUrl(filePath);
+      // Store just the file path, not the full URL
+      // Signed URLs will be generated dynamically when accessing the file
+      const fileUrlPath = filePath;
 
       // Upload cover image if provided
-      let coverImageUrl = null;
+      let coverImagePath = null;
       if (coverImage) {
         const coverExt = coverImage.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
         const coverPath = `${user.id}/covers/${Date.now()}.${coverExt}`;
@@ -207,11 +207,8 @@ export function ContentUploadForm() {
 
         if (coverError) throw coverError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('content-files')
-          .getPublicUrl(coverPath);
-        
-        coverImageUrl = publicUrl;
+        // Store just the path, not the full URL
+        coverImagePath = coverPath;
       }
 
       // Insert content record with validated data
@@ -225,8 +222,8 @@ export function ContentUploadForm() {
           author: validatedData.author || null,
           language: validatedData.language,
           tags: validatedData.tags,
-          file_url: fileUrl,
-          cover_image_url: coverImageUrl,
+          file_url: fileUrlPath,
+          cover_image_url: coverImagePath,
         });
 
       if (insertError) throw insertError;
