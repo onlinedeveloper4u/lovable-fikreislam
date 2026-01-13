@@ -64,6 +64,28 @@ function validateFile(file: File, contentType: ContentType): string | null {
     return `Invalid file type. Allowed types for ${contentType}: ${getAcceptedFileTypesStatic(contentType)}`;
   }
   
+  // Additional MIME type validation - check file extension matches MIME type
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  const mimeTypeExtensionMap: Record<string, string[]> = {
+    'application/pdf': ['pdf'],
+    'application/epub+zip': ['epub'],
+    'application/msword': ['doc'],
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['docx'],
+    'audio/mpeg': ['mp3'],
+    'audio/wav': ['wav'],
+    'audio/ogg': ['ogg'],
+    'audio/mp4': ['m4a', 'mp4'],
+    'audio/x-m4a': ['m4a'],
+    'video/mp4': ['mp4'],
+    'video/webm': ['webm'],
+    'video/quicktime': ['mov'],
+  };
+  
+  const expectedExtensions = mimeTypeExtensionMap[file.type];
+  if (expectedExtensions && extension && !expectedExtensions.includes(extension)) {
+    return `File extension (.${extension}) does not match file type. This could indicate a tampered file.`;
+  }
+  
   return null;
 }
 
