@@ -70,11 +70,11 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
   const fetchContent = async () => {
     setLoading(true);
     try {
+      // Use content_public view to avoid exposing sensitive fields (admin_notes, contributor_id)
       const { data, error } = await supabase
-        .from('content')
+        .from('content_public')
         .select('id, title, description, author, type, language, tags, file_url, cover_image_url, published_at')
         .eq('type', contentType)
-        .eq('status', 'approved')
         .order('published_at', { ascending: false });
 
       if (error) throw error;
