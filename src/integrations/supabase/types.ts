@@ -98,6 +98,13 @@ export type Database = {
             referencedRelation: "content"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "content_analytics_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       favorites: {
@@ -125,6 +132,13 @@ export type Database = {
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_public"
             referencedColumns: ["id"]
           },
         ]
@@ -157,6 +171,13 @@ export type Database = {
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_items_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_public"
             referencedColumns: ["id"]
           },
           {
@@ -245,7 +266,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      content_public: {
+        Row: {
+          author: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          file_url: string | null
+          id: string | null
+          language: string | null
+          published_at: string | null
+          status: Database["public"]["Enums"]["content_status"] | null
+          tags: string[] | null
+          title: string | null
+          type: Database["public"]["Enums"]["content_type"] | null
+        }
+        Insert: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string | null
+          language?: string | null
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["content_status"] | null
+          tags?: string[] | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["content_type"] | null
+        }
+        Update: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string | null
+          language?: string | null
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["content_status"] | null
+          tags?: string[] | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["content_type"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_role: {
