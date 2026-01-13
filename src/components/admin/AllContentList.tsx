@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getSignedUrl } from '@/lib/storage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +36,7 @@ interface Content {
   language: string | null;
   file_url: string | null;
   created_at: string;
+  signed_file_url?: string | null;
 }
 
 const statusConfig: Record<ContentStatus, { icon: React.ElementType; color: string; label: string }> = {
@@ -69,7 +71,16 @@ export function AllContentList() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContent((data as Content[]) || []);
+      
+      // Generate signed URLs for files
+      const contentWithSignedUrls = await Promise.all(
+        ((data as Content[]) || []).map(async (item) => {
+          const signedUrl = await getSignedUrl(item.file_url);
+          return { ...item, signed_file_url: signedUrl };
+        })
+      );
+      
+      setContent(contentWithSignedUrls);
     } catch (error: any) {
       console.error('Error fetching content:', error);
       toast.error('Failed to load content');
@@ -211,9 +222,9 @@ export function AllContentList() {
                     {statusCfg.label}
                   </Badge>
 
-                  {item.file_url && (
+                  {(item.signed_file_url || item.file_url) && (
                     <Button variant="ghost" size="icon" asChild>
-                      <a href={item.file_url} target="_blank" rel="noopener noreferrer">
+                      <a href={item.signed_file_url || item.file_url || ''} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getSignedUrl } from '@/lib/storage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +35,8 @@ interface Content {
   cover_image_url: string | null;
   created_at: string;
   contributor_id: string;
+  signed_file_url?: string | null;
+  signed_cover_url?: string | null;
 }
 
 const typeIcons: Record<ContentType, React.ElementType> = {
@@ -63,7 +66,19 @@ export function PendingContentList() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContent((data as Content[]) || []);
+      
+      // Generate signed URLs for files and covers
+      const contentWithSignedUrls = await Promise.all(
+        ((data as Content[]) || []).map(async (item) => {
+          const [signedFileUrl, signedCoverUrl] = await Promise.all([
+            getSignedUrl(item.file_url),
+            getSignedUrl(item.cover_image_url)
+          ]);
+          return { ...item, signed_file_url: signedFileUrl, signed_cover_url: signedCoverUrl };
+        })
+      );
+      
+      setContent(contentWithSignedUrls);
     } catch (error: any) {
       console.error('Error fetching pending content:', error);
       toast.error('Failed to load pending content');
@@ -169,9 +184,9 @@ export function PendingContentList() {
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  {item.cover_image_url ? (
+                  {(item.signed_cover_url || item.cover_image_url) ? (
                     <img 
-                      src={item.cover_image_url} 
+                      src={item.signed_cover_url || item.cover_image_url || ''} 
                       alt={item.title}
                       className="w-16 h-20 object-cover rounded-md"
                     />
@@ -226,9 +241,9 @@ export function PendingContentList() {
                     <Calendar className="h-3 w-3" />
                     {new Date(item.created_at).toLocaleDateString()}
                   </span>
-                  {item.file_url && (
+                  {(item.signed_file_url || item.file_url) && (
                     <a 
-                      href={item.file_url} 
+                      href={item.signed_file_url || item.file_url || ''} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-primary hover:underline"

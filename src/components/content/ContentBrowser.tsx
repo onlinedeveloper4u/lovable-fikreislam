@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { getSignedUrl } from '@/lib/storage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,6 +29,11 @@ interface Content {
   published_at: string | null;
 }
 
+interface ContentWithSignedUrls extends Content {
+  signed_file_url?: string | null;
+  signed_cover_url?: string | null;
+}
+
 interface ContentBrowserProps {
   contentType: ContentType;
   title: string;
@@ -46,7 +52,7 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { trackDownload, trackPlay } = useAnalytics();
-  const [content, setContent] = useState<Content[]>([]);
+  const [content, setContent] = useState<ContentWithSignedUrls[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
@@ -66,13 +72,29 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
     try {
       const { data, error } = await supabase
         .from('content')
-        .select('*')
+        .select('id, title, description, author, type, language, tags, file_url, cover_image_url, published_at')
         .eq('type', contentType)
         .eq('status', 'approved')
         .order('published_at', { ascending: false });
 
       if (error) throw error;
-      setContent((data as Content[]) || []);
+      
+      // Generate signed URLs for all content
+      const contentWithSignedUrls = await Promise.all(
+        ((data as Content[]) || []).map(async (item) => {
+          const [signedFileUrl, signedCoverUrl] = await Promise.all([
+            getSignedUrl(item.file_url),
+            getSignedUrl(item.cover_image_url)
+          ]);
+          return {
+            ...item,
+            signed_file_url: signedFileUrl,
+            signed_cover_url: signedCoverUrl
+          };
+        })
+      );
+      
+      setContent(contentWithSignedUrls);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {
@@ -105,15 +127,16 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
     });
   }, [content, searchQuery, selectedLanguage, selectedTag]);
 
-  const handleAction = (item: Content) => {
-    if (item.file_url) {
+  const handleAction = (item: ContentWithSignedUrls) => {
+    const fileUrl = item.signed_file_url || item.file_url;
+    if (fileUrl) {
       // Track the action
       if (item.type === 'book') {
         trackDownload(item.id);
       } else {
         trackPlay(item.id);
       }
-      window.open(item.file_url, '_blank');
+      window.open(fileUrl, '_blank');
     }
   };
 
@@ -228,9 +251,9 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
             >
               {/* Cover Image */}
               <div className="aspect-[3/4] relative bg-muted">
-                {item.cover_image_url ? (
+                {item.signed_cover_url || item.cover_image_url ? (
                   <img 
-                    src={item.cover_image_url} 
+                    src={item.signed_cover_url || item.cover_image_url || ''} 
                     alt={item.title}
                     className="w-full h-full object-cover"
                   />
