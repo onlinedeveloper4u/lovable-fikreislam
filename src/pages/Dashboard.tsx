@@ -8,8 +8,9 @@ import { PendingContentList } from '@/components/admin/PendingContentList';
 import { AllContentList } from '@/components/admin/AllContentList';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
+import { PendingAnswersList } from '@/components/admin/PendingAnswersList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FolderOpen, Clock, FileText, Users, BarChart3, LayoutDashboard } from 'lucide-react';
+import { Upload, FolderOpen, Clock, FileText, Users, BarChart3, LayoutDashboard, MessageCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, role, loading } = useAuth();
@@ -55,7 +56,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue={isAdmin ? "analytics" : "upload"} className="space-y-6">
-          <TabsList className={`grid w-full max-w-3xl ${isAdmin ? 'grid-cols-6' : 'grid-cols-2'}`}>
+          <TabsList className={`grid w-full max-w-4xl ${isAdmin ? 'grid-cols-7' : 'grid-cols-2'}`}>
             {isAdmin && (
               <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
@@ -75,6 +76,10 @@ export default function Dashboard() {
                 <TabsTrigger value="pending" className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span className="hidden sm:inline">Pending</span>
+                </TabsTrigger>
+                <TabsTrigger value="pending-answers" className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="hidden sm:inline">Q&A</span>
                 </TabsTrigger>
                 <TabsTrigger value="all-content" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
@@ -108,6 +113,10 @@ export default function Dashboard() {
             <>
               <TabsContent value="pending">
                 <PendingContentList />
+              </TabsContent>
+
+              <TabsContent value="pending-answers">
+                <PendingAnswersList />
               </TabsContent>
 
               <TabsContent value="all-content">

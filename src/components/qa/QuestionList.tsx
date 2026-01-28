@@ -1,0 +1,150 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, MessageCircle, User, Calendar } from 'lucide-react';
+import { AnswerForm } from './AnswerForm';
+import type { Database } from '@/integrations/supabase/types';
+
+type ContentType = Database['public']['Enums']['content_type'];
+
+interface Question {
+  id: string;
+  question: string;
+  created_at: string;
+  user_id: string;
+}
+
+interface Answer {
+  id: string;
+  answer: string;
+  status: string;
+  created_at: string;
+  answered_by: string;
+}
+
+interface QuestionListProps {
+  contentType: ContentType;
+  refreshTrigger: number;
+}
+
+export function QuestionList({ contentType, refreshTrigger }: QuestionListProps) {
+  const { role } = useAuth();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<string, Answer[]>>({});
+  const [loading, setLoading] = useState(true);
+
+  const isAdmin = role === 'admin';
+  const isContributor = role === 'contributor';
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch questions
+      const { data: questionsData, error: qError } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('content_type', contentType)
+        .order('created_at', { ascending: false });
+
+      if (qError) throw qError;
+
+      setQuestions(questionsData || []);
+
+      // Fetch answers for each question
+      if (questionsData && questionsData.length > 0) {
+        const questionIds = questionsData.map(q => q.id);
+        const { data: answersData, error: aError } = await supabase
+          .from('answers')
+          .select('*')
+          .in('question_id', questionIds)
+          .order('created_at', { ascending: true });
+
+        if (aError) throw aError;
+
+        // Group answers by question
+        const groupedAnswers: Record<string, Answer[]> = {};
+        (answersData || []).forEach(answer => {
+          if (!groupedAnswers[answer.question_id]) {
+            groupedAnswers[answer.question_id] = [];
+          }
+          groupedAnswers[answer.question_id].push(answer);
+        });
+        setAnswers(groupedAnswers);
+      }
+    } catch (error) {
+      console.error('Error fetching Q&A:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [contentType, refreshTrigger]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <MessageCircle className="h-10 w-10 mx-auto mb-2 opacity-50" />
+        <p>No questions yet. Be the first to ask!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {questions.map(question => (
+        <Card key={question.id} className="border-border/50">
+          <CardContent className="pt-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <p className="font-medium text-foreground">{question.question}</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {new Date(question.created_at).toLocaleDateString()}
+                </p>
+
+                {/* Answers */}
+                {answers[question.id]?.length > 0 && (
+                  <div className="mt-3 space-y-2 pl-4 border-l-2 border-primary/20">
+                    {answers[question.id].map(answer => (
+                      <div key={answer.id} className="bg-muted/50 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {answer.status === 'approved' ? 'Answer' : 'Pending'}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(answer.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm">{answer.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Answer form for admin/contributor */}
+                {(isAdmin || isContributor) && (
+                  <AnswerForm questionId={question.id} onAnswerAdded={fetchData} />
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      answers: {
+        Row: {
+          answer: string
+          answered_by: string
+          approved_at: string | null
+          created_at: string
+          id: string
+          question_id: string
+          status: Database["public"]["Enums"]["content_status"]
+        }
+        Insert: {
+          answer: string
+          answered_by: string
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          question_id: string
+          status?: Database["public"]["Enums"]["content_status"]
+        }
+        Update: {
+          answer?: string
+          answered_by?: string
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          question_id?: string
+          status?: Database["public"]["Enums"]["content_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content: {
         Row: {
           admin_notes: string | null
@@ -239,6 +277,30 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string
+          id: string
+          question: string
+          user_id: string
+        }
+        Insert: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          id?: string
+          question: string
+          user_id: string
+        }
+        Update: {
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          id?: string
+          question?: string
           user_id?: string
         }
         Relationships: []
