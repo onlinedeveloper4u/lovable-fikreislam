@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Books from "./pages/Books";
@@ -11,8 +11,7 @@ import VideoPage from "./pages/VideoPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
-import ContributorDashboard from "./pages/ContributorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+import Dashboard from "./pages/Dashboard";
 import Library from "./pages/Library";
 
 const queryClient = new QueryClient();
@@ -31,8 +30,10 @@ const App = () => (
             <Route path="/video" element={<VideoPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/contributor" element={<ContributorDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Redirect old routes to new unified dashboard */}
+            <Route path="/contributor" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/library" element={<Library />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

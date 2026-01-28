@@ -111,7 +111,8 @@ function getAcceptedFileTypesStatic(type: ContentType): string {
 }
 
 export function ContentUploadForm() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const isAdmin = role === 'admin';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contentType, setContentType] = useState<ContentType>('book');
   const [title, setTitle] = useState('');
@@ -212,6 +213,7 @@ export function ContentUploadForm() {
       }
 
       // Insert content record with validated data
+      // Admins get auto-approved, contributors need review
       const { error: insertError } = await supabase
         .from('content')
         .insert({
@@ -224,11 +226,15 @@ export function ContentUploadForm() {
           tags: validatedData.tags,
           file_url: fileUrlPath,
           cover_image_url: coverImagePath,
+          status: isAdmin ? 'approved' : 'pending',
+          published_at: isAdmin ? new Date().toISOString() : null,
         });
 
       if (insertError) throw insertError;
 
-      toast.success('Content uploaded successfully! It will be reviewed by an admin.');
+      toast.success(isAdmin 
+        ? 'Content uploaded and published successfully!' 
+        : 'Content uploaded successfully! It will be reviewed by an admin.');
       
       // Reset form
       setTitle('');
@@ -255,7 +261,9 @@ export function ContentUploadForm() {
           Upload New Content
         </CardTitle>
         <CardDescription>
-          Submit your content for review. Once approved by an admin, it will be published.
+          {isAdmin 
+            ? 'Upload content directly. Your uploads will be published immediately.'
+            : 'Submit your content for review. Once approved by an admin, it will be published.'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -401,7 +409,7 @@ export function ContentUploadForm() {
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                Submit for Review
+                {isAdmin ? 'Upload & Publish' : 'Submit for Review'}
               </>
             )}
           </Button>
