@@ -199,12 +199,12 @@ export function ContentBrowser({ contentType, title, description }: ContentBrows
         </Select>
 
         {allTags.length > 0 && (
-          <Select value={selectedTag || ''} onValueChange={(v) => setSelectedTag(v || null)}>
+          <Select value={selectedTag || '_all'} onValueChange={(v) => setSelectedTag(v === '_all' ? null : v)}>
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="All Tags" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Tags</SelectItem>
+              <SelectItem value="_all">All Tags</SelectItem>
               {allTags.map(tag => (
                 <SelectItem key={tag} value={tag}>{tag}</SelectItem>
               ))}
