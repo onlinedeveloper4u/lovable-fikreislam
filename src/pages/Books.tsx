@@ -1,17 +1,15 @@
 import Layout from "@/components/layout/Layout";
 import { ContentBrowser } from "@/components/content/ContentBrowser";
-import { QASection } from "@/components/qa/QASection";
 
 const Books = () => {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 space-y-8">
+       <div className="container mx-auto px-4 py-8">
         <ContentBrowser 
           contentType="book"
           title="Books Library"
           description="Browse our collection of Islamic books and PDFs"
         />
-        <QASection contentType="book" title="Books Q&A" />
       </div>
     </Layout>
   );
