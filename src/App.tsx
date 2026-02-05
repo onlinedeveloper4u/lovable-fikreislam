@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Books from "./pages/Books";
 import Audio from "./pages/Audio";
 import VideoPage from "./pages/VideoPage";
+ import QA from "./pages/QA";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/books" element={<Books />} />
             <Route path="/audio" element={<Audio />} />
             <Route path="/video" element={<VideoPage />} />
+           <Route path="/qa" element={<QA />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Book, Headphones, Video, Menu, X, LogOut, User, Heart, LayoutDashboard } from "lucide-react";
+ import { Book, Headphones, Video, Menu, X, LogOut, User, Heart, LayoutDashboard, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -25,6 +25,7 @@ const Navbar = () => {
     { name: "Books", href: "/books", icon: Book },
     { name: "Audio", href: "/audio", icon: Headphones },
     { name: "Video", href: "/video", icon: Video },
+   { name: "Q&A", href: "/qa", icon: HelpCircle },
   ];
 
   const getRoleBadge = () => {
