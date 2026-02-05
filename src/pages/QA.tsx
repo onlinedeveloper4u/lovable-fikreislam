@@ -1,7 +1,6 @@
  import Layout from "@/components/layout/Layout";
  import { QASection } from "@/components/qa/QASection";
- import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
- import { Book, Headphones, Video, HelpCircle } from "lucide-react";
+ import { HelpCircle } from "lucide-react";
  
  const QA = () => {
    return (
@@ -23,32 +22,7 @@
            </div>
          </div>
  
-         <Tabs defaultValue="book" className="space-y-6">
-           <TabsList className="grid w-full max-w-md grid-cols-3">
-             <TabsTrigger value="book" className="flex items-center gap-2">
-               <Book className="h-4 w-4" />
-               Books
-             </TabsTrigger>
-             <TabsTrigger value="audio" className="flex items-center gap-2">
-               <Headphones className="h-4 w-4" />
-               Audio
-             </TabsTrigger>
-             <TabsTrigger value="video" className="flex items-center gap-2">
-               <Video className="h-4 w-4" />
-               Video
-             </TabsTrigger>
-           </TabsList>
- 
-           <TabsContent value="book">
-             <QASection contentType="book" title="Books Q&A" />
-           </TabsContent>
-           <TabsContent value="audio">
-             <QASection contentType="audio" title="Audio Q&A" />
-           </TabsContent>
-           <TabsContent value="video">
-             <QASection contentType="video" title="Video Q&A" />
-           </TabsContent>
-         </Tabs>
+         <QASection />
        </div>
      </Layout>
    );

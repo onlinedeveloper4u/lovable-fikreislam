@@ -5,16 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { MessageCirclePlus } from 'lucide-react';
-import type { Database } from '@/integrations/supabase/types';
-
-type ContentType = Database['public']['Enums']['content_type'];
 
 interface QuestionFormProps {
-  contentType: ContentType;
   onQuestionAdded: () => void;
 }
 
-export function QuestionForm({ contentType, onQuestionAdded }: QuestionFormProps) {
+ export function QuestionForm({ onQuestionAdded }: QuestionFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [question, setQuestion] = useState('');
@@ -28,7 +24,7 @@ export function QuestionForm({ contentType, onQuestionAdded }: QuestionFormProps
     try {
       const { error } = await supabase.from('questions').insert({
         user_id: user.id,
-        content_type: contentType,
+         content_type: 'book', // Default value since content_type is required
         question: question.trim(),
       });
 

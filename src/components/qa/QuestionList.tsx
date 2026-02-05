@@ -18,9 +18,6 @@ import { AnswerForm } from './AnswerForm';
    AlertDialogHeader,
    AlertDialogTitle,
  } from '@/components/ui/alert-dialog';
-import type { Database } from '@/integrations/supabase/types';
-
-type ContentType = Database['public']['Enums']['content_type'];
 
 interface Question {
   id: string;
@@ -38,11 +35,10 @@ interface Answer {
 }
 
 interface QuestionListProps {
-  contentType: ContentType;
   refreshTrigger: number;
 }
 
-export function QuestionList({ contentType, refreshTrigger }: QuestionListProps) {
+ export function QuestionList({ refreshTrigger }: QuestionListProps) {
    const { user, role } = useAuth();
    const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -61,7 +57,6 @@ export function QuestionList({ contentType, refreshTrigger }: QuestionListProps)
       const { data: questionsData, error: qError } = await supabase
         .from('questions')
         .select('*')
-        .eq('content_type', contentType)
         .order('created_at', { ascending: false });
 
       if (qError) throw qError;
@@ -131,7 +126,7 @@ export function QuestionList({ contentType, refreshTrigger }: QuestionListProps)
  
   useEffect(() => {
     fetchData();
-  }, [contentType, refreshTrigger]);
+   }, [refreshTrigger]);
 
   if (loading) {
     return (
