@@ -4,7 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
  import { Button } from '@/components/ui/button';
- import { Loader2, MessageCircle, User, Calendar, Pencil, Trash2 } from 'lucide-react';
+ import { Input } from '@/components/ui/input';
+ import { Loader2, MessageCircle, User, Calendar, Pencil, Trash2, Search } from 'lucide-react';
 import { AnswerForm } from './AnswerForm';
  import { QuestionEditDialog } from './QuestionEditDialog';
  import { useToast } from '@/hooks/use-toast';
@@ -46,6 +47,7 @@ interface QuestionListProps {
   const [loading, setLoading] = useState(true);
    const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
    const [deletingQuestionId, setDeletingQuestionId] = useState<string | null>(null);
+   const [searchQuery, setSearchQuery] = useState('');
 
   const isAdmin = role === 'admin';
   const isContributor = role === 'contributor';
@@ -124,6 +126,11 @@ interface QuestionListProps {
      return user?.id === question.user_id && (!answers[question.id] || answers[question.id].length === 0);
    };
  
+   // Filter questions based on search query
+   const filteredQuestions = questions.filter(question =>
+     question.question.toLowerCase().includes(searchQuery.toLowerCase())
+   );
+ 
   useEffect(() => {
     fetchData();
    }, [refreshTrigger]);
@@ -136,7 +143,7 @@ interface QuestionListProps {
     );
   }
 
-  if (questions.length === 0) {
+   if (questions.length === 0 && !searchQuery) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <MessageCircle className="h-10 w-10 mx-auto mb-2 opacity-50" />
@@ -146,8 +153,25 @@ interface QuestionListProps {
   }
 
   return (
-    <div className="space-y-4">
-      {questions.map(question => (
+     <div className="space-y-4">
+       {/* Search Input */}
+       <div className="relative">
+         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+         <Input
+           placeholder="Search questions..."
+           value={searchQuery}
+           onChange={(e) => setSearchQuery(e.target.value)}
+           className="pl-9"
+         />
+       </div>
+ 
+       {filteredQuestions.length === 0 ? (
+         <div className="text-center py-8 text-muted-foreground">
+           <MessageCircle className="h-10 w-10 mx-auto mb-2 opacity-50" />
+           <p>{searchQuery ? 'No questions match your search.' : 'No questions yet. Be the first to ask!'}</p>
+         </div>
+       ) : (
+         filteredQuestions.map(question => (
         <Card key={question.id} className="border-border/50">
           <CardContent className="pt-4">
             <div className="flex items-start gap-3">
@@ -210,7 +234,8 @@ interface QuestionListProps {
             </div>
           </CardContent>
         </Card>
-      ))}
+         ))
+       )}
  
        {/* Edit Dialog */}
        {editingQuestion && (
