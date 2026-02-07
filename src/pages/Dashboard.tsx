@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { ContentUploadForm } from '@/components/contributor/ContentUploadForm';
 import { MyContentList } from '@/components/contributor/MyContentList';
+import { ContributorOverview } from '@/components/contributor/ContributorOverview';
 import { PendingContentList } from '@/components/admin/PendingContentList';
 import { AllContentList } from '@/components/admin/AllContentList';
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -11,6 +12,7 @@ import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import { PendingAnswersList } from '@/components/admin/PendingAnswersList';
 
 const tabTitles: Record<string, string> = {
+  'stats': 'Overview',
   'upload': 'Upload Content',
   'my-content': 'My Content',
   'analytics': 'Analytics',
@@ -27,7 +29,7 @@ export default function Dashboard() {
   
   const [activeTab, setActiveTab] = useState(() => {
     // Default tab based on role
-    return isAdmin ? 'analytics' : 'upload';
+    return isAdmin ? 'analytics' : 'stats';
   });
 
   // Update default tab when role changes
@@ -59,6 +61,8 @@ export default function Dashboard() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'stats':
+        return <ContributorOverview />;
       case 'upload':
         return (
           <div className="max-w-2xl">
