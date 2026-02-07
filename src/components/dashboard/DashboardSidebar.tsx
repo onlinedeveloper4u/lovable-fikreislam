@@ -34,6 +34,7 @@ interface DashboardSidebarProps {
 }
 
 const contributorItems = [
+  { id: 'stats', title: 'Overview', icon: BarChart3 },
   { id: 'upload', title: 'Upload Content', icon: Upload },
   { id: 'my-content', title: 'My Content', icon: FolderOpen },
 ];
