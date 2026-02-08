@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Book, Headphones, Video, Heart } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -9,9 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-xl">ف</span>
-              </div>
+              <img src={logo} alt="Fikr-e-Islam" className="w-10 h-10 object-contain" />
               <span className="font-display text-xl font-semibold text-foreground">
                 Fikr-e-Islam
               </span>
