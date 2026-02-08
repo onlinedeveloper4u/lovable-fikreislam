@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import logo from "@/assets/logo.png";
 
 const Register = () => {
   const [fullName, setFullName] = useState("");
@@ -73,9 +74,7 @@ const Register = () => {
         <div className="w-full max-w-md mx-4">
           <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
             <div className="text-center mb-8">
-              <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4">
-                <span className="text-primary-foreground font-display font-bold text-2xl">ف</span>
-              </div>
+              <img src={logo} alt="Fikr-e-Islam" className="w-14 h-14 object-contain mx-auto mb-4" />
               <h1 className="font-display text-2xl font-bold text-foreground mb-2">
                 Create Account
               </h1>
