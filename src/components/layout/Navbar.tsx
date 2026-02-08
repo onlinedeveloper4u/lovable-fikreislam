@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
- import { Book, Headphones, Video, Menu, X, LogOut, User, Heart, LayoutDashboard, HelpCircle } from "lucide-react";
+import { Book, Headphones, Video, Menu, X, LogOut, User, Heart, LayoutDashboard, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,9 +48,7 @@ const Navbar = () => {
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-xl">ف</span>
-          </div>
+          <img src={logo} alt="Fikr-e-Islam" className="w-10 h-10 object-contain" />
           <span className="font-display text-xl font-semibold text-foreground">
             Fikr-e-Islam
           </span>
