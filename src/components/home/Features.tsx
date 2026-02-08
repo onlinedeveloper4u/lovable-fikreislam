@@ -57,8 +57,7 @@ const Features = () => {
             Platform Features
           </span>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-5">
-            Everything for Your{" "}
-            <span className="text-gradient">Spiritual Growth</span>
+            Everything for Your <span className="text-gradient">Spiritual Growth</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
             A comprehensive platform designed to make authentic Islamic knowledge 

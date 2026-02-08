@@ -2,8 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, Upload, Sparkles } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useContentStats } from "@/hooks/useContentStats";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CallToAction = () => {
+  const { data: stats, isLoading } = useContentStats();
+
   return (
     <section className="py-24 bg-background relative overflow-hidden">
       {/* Background decorations */}
@@ -83,19 +87,43 @@ const CallToAction = () => {
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center">
-                <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">1000+</div>
+                {isLoading ? (
+                  <Skeleton className="h-12 w-20 mx-auto mb-2" />
+                ) : (
+                  <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">
+                    {stats?.books || 0}
+                  </div>
+                )}
                 <div className="text-muted-foreground text-sm">Islamic Books</div>
               </div>
               <div className="text-center">
-                <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">500+</div>
+                {isLoading ? (
+                  <Skeleton className="h-12 w-20 mx-auto mb-2" />
+                ) : (
+                  <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">
+                    {stats?.audio || 0}
+                  </div>
+                )}
                 <div className="text-muted-foreground text-sm">Audio Lectures</div>
               </div>
               <div className="text-center">
-                <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">200+</div>
+                {isLoading ? (
+                  <Skeleton className="h-12 w-20 mx-auto mb-2" />
+                ) : (
+                  <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">
+                    {stats?.video || 0}
+                  </div>
+                )}
                 <div className="text-muted-foreground text-sm">Video Content</div>
               </div>
               <div className="text-center">
-                <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">50+</div>
+                {isLoading ? (
+                  <Skeleton className="h-12 w-20 mx-auto mb-2" />
+                ) : (
+                  <div className="font-display text-3xl md:text-4xl font-bold text-primary mb-2">
+                    {stats?.contributors || 0}
+                  </div>
+                )}
                 <div className="text-muted-foreground text-sm">Contributors</div>
               </div>
             </div>

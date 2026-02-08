@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Book, Headphones, Video, Heart } from "lucide-react";
+import { Book, Headphones, Video, Heart, HelpCircle, Library } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -50,35 +50,42 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-foreground mb-4">Quick Links</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  About Us
+                <Link to="/library" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Library className="w-4 h-4" />
+                  My Library
                 </Link>
               </li>
               <li>
-                <Link to="/contribute" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/qa" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <HelpCircle className="w-4 h-4" />
+                  Q&A Forum
+                </Link>
+              </li>
+              <li>
+                <Link to="/register" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   Become a Contributor
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Contact
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Account */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Legal</h4>
+            <h4 className="font-display font-semibold text-foreground mb-4">Account</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Privacy Policy
+                <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Sign In
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Terms of Service
+                <Link to="/register" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Create Account
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Dashboard
                 </Link>
               </li>
             </ul>

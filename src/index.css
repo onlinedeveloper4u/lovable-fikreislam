@@ -165,8 +165,10 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(158 64% 25%) 0%, hsl(158 50% 40%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .islamic-pattern {
