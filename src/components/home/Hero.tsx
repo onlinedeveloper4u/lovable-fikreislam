@@ -35,12 +35,7 @@ const Hero = () => {
           {/* Heading */}
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 animate-slide-up leading-tight" style={{ animationDelay: "0.2s" }}>
             Discover the Beauty of{" "}
-            <span className="relative">
-              <span className="text-gradient">Islamic Wisdom</span>
-              <svg className="absolute -bottom-2 left-0 w-full" height="8" viewBox="0 0 200 8" fill="none">
-                <path d="M2 6C50 2 150 2 198 6" stroke="hsl(var(--accent))" strokeWidth="3" strokeLinecap="round"/>
-              </svg>
-            </span>
+            <span className="text-gradient">Islamic Wisdom</span>
           </h1>
 
           {/* Description */}
