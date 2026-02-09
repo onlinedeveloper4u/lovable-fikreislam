@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Book, Headphones, Video, Menu, X, LogOut, User, Heart, LayoutDashboard, HelpCircle } from "lucide-react";
+import { Book, Headphones, Video, Menu, X, LogOut, User, Heart, LayoutDashboard, HelpCircle, Settings } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
@@ -93,6 +93,12 @@ const Navbar = () => {
                   <Link to="/library">
                     <Heart className="w-4 h-4 mr-2" />
                     My Library
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/settings">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
                   </Link>
                 </DropdownMenuItem>
                 {(role === 'contributor' || role === 'admin') && (
