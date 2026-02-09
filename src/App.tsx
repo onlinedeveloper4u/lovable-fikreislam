@@ -17,6 +17,9 @@ const VideoPage = lazy(() => import("./pages/VideoPage"));
 const QA = lazy(() => import("./pages/QA"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Settings = lazy(() => import("./pages/Settings"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Library = lazy(() => import("./pages/Library"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -39,6 +42,9 @@ const App = () => (
               <Route path="/qa" element={<QA />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/dashboard" element={<Dashboard />} />
               {/* Redirect old routes to new unified dashboard */}
               <Route path="/contributor" element={<Navigate to="/dashboard" replace />} />
